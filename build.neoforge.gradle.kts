@@ -26,6 +26,7 @@ neoForge.apply {
     runs {
         register("client") {
             client()
+            jvmArguments.add("-Dswordhitbox.dev=true")
         }
     }
 

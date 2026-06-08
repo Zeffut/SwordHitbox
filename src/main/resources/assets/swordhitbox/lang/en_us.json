@@ -1,14 +1,6 @@
 {
-  "modmenu.summaryTranslation.swordhitbox": "Shows entity hitboxes while holding a sword (visual aid, client-side).",
+  "modmenu.summaryTranslation.swordhitbox": "Shows vanilla entity hitboxes while holding a sword (visual aid, client-side).",
   "swordhitbox.name": "SwordHitbox",
   "swordhitbox.config.enabled": "Show hitboxes",
-  "swordhitbox.config.enabled.tooltip": "When on, holding a sword outlines the hitbox of nearby living entities.",
-  "swordhitbox.config.highlight_in_range": "Highlight in-range entities",
-  "swordhitbox.config.highlight_in_range.tooltip": "When on, entities within attack range are drawn in the in-range color instead of the box color. Off by default.",
-  "swordhitbox.config.box_color": "Hitbox color (ARGB)",
-  "swordhitbox.config.box_color.tooltip": "Packed ARGB color of the hitbox outline, e.g. 0xFFFFFFFF (white).",
-  "swordhitbox.config.in_range_color": "In-range color (ARGB)",
-  "swordhitbox.config.in_range_color.tooltip": "Packed ARGB color used for in-range entities when highlighting is on, e.g. 0xFFFF0000 (red).",
-  "swordhitbox.config.radius": "Search radius (blocks)",
-  "swordhitbox.config.radius.tooltip": "How far around you living entities are searched for outlining. Clamped between 4 and 64."
+  "swordhitbox.config.enabled.tooltip": "When on, holding a sword turns on the vanilla hitbox overlay (the F3+B debug view) for all entities."
 }

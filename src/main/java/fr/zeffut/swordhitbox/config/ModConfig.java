@@ -27,23 +27,9 @@ public final class ModConfig {
     private static final String FILE_NAME = "swordhitbox.json";
     private static volatile ModConfig instance;
 
-    /** Whether the hitbox overlay is drawn at all. */
+    /** Whether the native vanilla hitbox overlay is toggled on while holding a sword. */
     private static final String KEY_ENABLED = "enabled";
     private static final boolean DEFAULT_ENABLED = true;
-    /** Whether entities within attack range are tinted with {@code in_range_color}. */
-    private static final String KEY_HIGHLIGHT_IN_RANGE = "highlight_in_range";
-    private static final boolean DEFAULT_HIGHLIGHT_IN_RANGE = false;
-    /** Packed ARGB color for the hitbox outline of every nearby living entity. */
-    private static final String KEY_BOX_COLOR = "box_color";
-    private static final int DEFAULT_BOX_COLOR = 0xFFFFFFFF;
-    /** Packed ARGB color used only for in-range entities when highlighting is on. */
-    private static final String KEY_IN_RANGE_COLOR = "in_range_color";
-    private static final int DEFAULT_IN_RANGE_COLOR = 0xFFFF0000;
-    /** Search radius (blocks) around the player for living entities to outline. */
-    private static final String KEY_RADIUS = "radius";
-    private static final double DEFAULT_RADIUS = 24.0;
-    private static final double MIN_RADIUS = 4.0;
-    private static final double MAX_RADIUS = 64.0;
 
     private boolean telemetry = true;
     private String installId;
@@ -79,68 +65,12 @@ public final class ModConfig {
         return settings.getOrDefault(key, fallback);
     }
 
-    /** Whether the hitbox overlay is drawn at all. Default {@code true}. */
+    /**
+     * Whether the native vanilla hitbox overlay (F3+B) is toggled on while holding a sword.
+     * Default {@code true}.
+     */
     public boolean enabled() {
         return Boolean.parseBoolean(settings.getOrDefault(KEY_ENABLED, String.valueOf(DEFAULT_ENABLED)));
-    }
-
-    /**
-     * Whether entities within attack range are drawn in {@link #inRangeColor()} instead of
-     * {@link #boxColor()}. Default {@code false} (the red "in range" tint is opt-in).
-     */
-    public boolean highlightInRange() {
-        return Boolean.parseBoolean(
-                settings.getOrDefault(KEY_HIGHLIGHT_IN_RANGE, String.valueOf(DEFAULT_HIGHLIGHT_IN_RANGE)));
-    }
-
-    /** Packed ARGB color for every nearby entity's hitbox. Default white {@code 0xFFFFFFFF}. */
-    public int boxColor() {
-        return parseColor(settings.get(KEY_BOX_COLOR), DEFAULT_BOX_COLOR);
-    }
-
-    /** Packed ARGB color for in-range entities (only used if {@link #highlightInRange()}). */
-    public int inRangeColor() {
-        return parseColor(settings.get(KEY_IN_RANGE_COLOR), DEFAULT_IN_RANGE_COLOR);
-    }
-
-    /** Search radius (blocks) for nearby living entities. Clamped to {@code 4..64}. */
-    public double radius() {
-        double v = DEFAULT_RADIUS;
-        String raw = settings.get(KEY_RADIUS);
-        if (raw != null) {
-            try {
-                v = Double.parseDouble(raw.trim());
-            } catch (NumberFormatException ignored) {
-                v = DEFAULT_RADIUS;
-            }
-        }
-        return Math.max(MIN_RADIUS, Math.min(MAX_RADIUS, v));
-    }
-
-    /**
-     * Parses an ARGB color stored as a hex string ({@code "0xFFFFFFFF"}, {@code "#FFFFFFFF"} or a
-     * bare hex/decimal literal). Falls back to {@code fallback} on any parse failure.
-     */
-    private static int parseColor(String raw, int fallback) {
-        if (raw == null) return fallback;
-        String s = raw.trim();
-        if (s.isEmpty()) return fallback;
-        try {
-            if (s.startsWith("0x") || s.startsWith("0X")) {
-                return (int) Long.parseLong(s.substring(2), 16);
-            }
-            if (s.startsWith("#")) {
-                return (int) Long.parseLong(s.substring(1), 16);
-            }
-            // Plain decimal, or hex without prefix is not assumed; try decimal first.
-            return (int) Long.parseLong(s);
-        } catch (NumberFormatException ignored) {
-            try {
-                return (int) Long.parseLong(s, 16);
-            } catch (NumberFormatException ignored2) {
-                return fallback;
-            }
-        }
     }
 
     /** Writes the mod's setting defaults if absent, persisting once on first run. */
@@ -150,27 +80,7 @@ public final class ModConfig {
             settings.put(KEY_ENABLED, String.valueOf(DEFAULT_ENABLED));
             changed = true;
         }
-        if (!settings.containsKey(KEY_HIGHLIGHT_IN_RANGE)) {
-            settings.put(KEY_HIGHLIGHT_IN_RANGE, String.valueOf(DEFAULT_HIGHLIGHT_IN_RANGE));
-            changed = true;
-        }
-        if (!settings.containsKey(KEY_BOX_COLOR)) {
-            settings.put(KEY_BOX_COLOR, toHex(DEFAULT_BOX_COLOR));
-            changed = true;
-        }
-        if (!settings.containsKey(KEY_IN_RANGE_COLOR)) {
-            settings.put(KEY_IN_RANGE_COLOR, toHex(DEFAULT_IN_RANGE_COLOR));
-            changed = true;
-        }
-        if (!settings.containsKey(KEY_RADIUS)) {
-            settings.put(KEY_RADIUS, String.valueOf(DEFAULT_RADIUS));
-            changed = true;
-        }
         if (changed) save();
-    }
-
-    private static String toHex(int argb) {
-        return String.format("0x%08X", argb);
     }
 
     public void putSetting(String key, String value) { settings.put(key, value); save(); }

@@ -2,32 +2,21 @@
 package fr.zeffut.swordhitbox.fabric;
 
 import fr.zeffut.swordhitbox.config.ModConfig;
+import fr.zeffut.swordhitbox.hitbox.SwordHitboxToggle;
 import fr.zeffut.swordhitbox.platform.Platform;
-import fr.zeffut.swordhitbox.render.HitboxRenderer;
 import fr.zeffut.swordhitbox.telemetry.Telemetry;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.fabricmc.api.ClientModInitializer;
-//? if >=26.1 {
-/*import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
-import net.minecraft.client.Minecraft;
-*///?} else {
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
-import net.minecraft.client.MinecraftClient;
-//?}
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Fabric client entrypoint. Initializes config + telemetry, emits the standard
- * {@code client_started} / {@code mod_loaded} events plus a one-shot {@code swh_display_enabled}
- * event, and registers the after-entities world render hook that draws the hitbox overlay.
- *
- * <p>The Fabric API render-event surface diverges across versions: 1.21.11 (Yarn) exposes
- * {@code WorldRenderEvents.AFTER_ENTITIES} (package {@code ...rendering.v1.world}) with
- * {@code matrices()}/{@code consumers()}; 26.1 renamed it to {@code LevelRenderEvents} (package
- * {@code ...rendering.v1.level}) with a new pipeline, so we register at {@code AFTER_SOLID_FEATURES}
- * (after entities & solid terrain) and pull pose/buffers/camera from the level render context.
+ * {@code client_started} / {@code mod_loaded} events plus a one-shot {@code swh_hitboxes_shown}
+ * event, and registers a client-tick hook that toggles the native vanilla hitbox overlay
+ * (F3+B) while a sword is held — see {@link SwordHitboxToggle}.
  */
 public class SwordHitboxFabric implements ClientModInitializer {
     private static final Logger LOG = LoggerFactory.getLogger("SwordHitbox");
@@ -37,15 +26,7 @@ public class SwordHitboxFabric implements ClientModInitializer {
         // Touch config first so install_id / telemetry opt-out are resolved before any capture.
         ModConfig cfg = ModConfig.get();
 
-        //? if >=26.1 {
-        /*LevelRenderEvents.AFTER_SOLID_FEATURES.register(ctx ->
-                HitboxRenderer.render(ctx.poseStack(), ctx.bufferSource(),
-                        Minecraft.getInstance().gameRenderer.getMainCamera().position()));
-        *///?} else {
-        WorldRenderEvents.AFTER_ENTITIES.register(ctx ->
-                HitboxRenderer.render(ctx.matrices(), ctx.consumers(),
-                        MinecraftClient.getInstance().gameRenderer.getCamera().getCameraPos()));
-        //?}
+        ClientTickEvents.END_CLIENT_TICK.register(client -> SwordHitboxToggle.clientTick());
 
         String mc = Platform.mcVersion();
         String modVer = Platform.modVersion();
@@ -59,10 +40,8 @@ public class SwordHitboxFabric implements ClientModInitializer {
         Telemetry.capture("client_started", "mod-fabric", mc, modVer, started);
         Telemetry.capture("mod_loaded", "mod-fabric", mc, modVer, Map.of("loader", "fabric"));
 
-        Map<String, Object> display = new LinkedHashMap<>();
-        display.put("enabled", cfg.enabled());
-        display.put("highlight_in_range", cfg.highlightInRange());
-        Telemetry.captureModEvent("display_enabled", "mod-fabric", mc, modVer, display);
+        Telemetry.captureModEvent("hitboxes_shown", "mod-fabric", mc, modVer,
+                Map.of("enabled", cfg.enabled()));
 
         LOG.info("[SwordHitbox] initialized on fabric {} (telemetry={})", mc, Telemetry.enabled());
     }

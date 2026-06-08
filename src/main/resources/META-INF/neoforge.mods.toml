@@ -6,7 +6,7 @@ license = "LicenseRef-PolyForm-Noncommercial-1.0.0"
 modId = "swordhitbox"
 version = "${version}"
 displayName = "SwordHitbox"
-description = "Affiche les hitboxes des entités quand tu tiens une épée (aide visuelle, client-side)."
+description = "Affiche les hitboxes vanilla des entités quand tu tiens une épée (aide visuelle, client-side)."
 authors = "zeffut"
 logoFile = "assets/swordhitbox/icon.png"
 

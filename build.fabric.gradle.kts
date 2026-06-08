@@ -51,6 +51,7 @@ dependencies {
 
 loom.runs.named("client") {
     client()
+    vmArgs("-Dswordhitbox.dev=true")
 }
 
 val expandProps = mapOf(
