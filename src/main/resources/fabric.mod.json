@@ -3,7 +3,7 @@
   "id": "swordhitbox",
   "version": "${version}",
   "name": "SwordHitbox",
-  "description": "Étend la portée d'attaque de toutes les épées (vanilla et modées). Télémétrie anonyme activée par défaut, désactivable dans la config.",
+  "description": "Affiche les hitboxes des entités quand tu tiens une épée (aide visuelle, client-side).",
   "authors": [
     "zeffut"
   ],

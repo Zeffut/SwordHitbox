@@ -1,48 +1,46 @@
 # SwordHitbox
 
-A small **client-side** Minecraft mod that **extends your attack reach on entities while a sword is
-in your main hand** — for every sword, vanilla *and* modded.
+A small **client-side, purely visual** Minecraft mod (in the spirit of *Mace Hitboxes*): while you
+hold a **sword**, it draws the collision-box outline of nearby living entities so you can read PvP
+and mob fights at a glance.
 
 ## What it does
 
-While you hold a sword, the mod adds a transient `AttributeModifier` to your local player's
-`minecraft:player.entity_interaction_range` attribute, increasing how far away you can hit mobs and
-other entities. The bonus is removed the moment you switch to a non-sword item. No mixins are used.
+When a sword is in your main hand, the mod outlines the hitbox of every living entity within a
+configurable radius around you. Optionally, entities that are within your attack range can be tinted
+a different color.
 
-Swords are detected via the `minecraft:swords` item tag (with a `c:swords` fallback), so the mod
-catches vanilla swords, component-defined swords, and modded swords alike — it does **not** rely on
+Swords are detected via the `minecraft:swords` item tag (with a `c:swords` fallback), so it covers
+vanilla swords, component-defined swords, and modded swords alike — it does **not** rely on
 `instanceof SwordItem`.
 
-## Multiplayer caveat (read this)
-
-The reach attribute is changed **only on your client**. You get the full extended reach in:
-
-- **Singleplayer**, **LAN worlds**, and
-- servers that **also run this mod** (or otherwise raise the server-side interaction range).
-
-On a **strict vanilla multiplayer server**, the server caps the effective reach at roughly **4
-blocks** regardless of your client setting: it validates every attack with `canInteractWithEntity`,
-which reads the **server-side** value of your interaction-range attribute. Your client may show the
-swing, but hits beyond the server's allowed range are rejected. This is expected and intentional —
-the mod does not (and cannot, client-side) bypass server-authoritative hit validation.
+**This is not a cheat.** Nothing is sent to the server: the outlines are drawn locally on your
+client only. The mod changes **no gameplay** — no attribute is modified, no reach is extended, no
+packets are altered. It therefore works on **every server**, including strict vanilla anti-cheat
+servers, exactly like any rendering-only client mod.
 
 ## Configuration
 
 Settings live in `config/swordhitbox.json` (created on first run) under the `settings` object:
 
-| Key           | Type    | Default | Notes                                              |
-|---------------|---------|---------|----------------------------------------------------|
-| `enabled`     | boolean | `true`  | Master switch. When `false`, no bonus is applied.  |
-| `reach_bonus` | double  | `2.0`   | Extra blocks of reach. Clamped to `0..16`.         |
+| Key                  | Type    | Default      | Notes                                                              |
+|----------------------|---------|--------------|--------------------------------------------------------------------|
+| `enabled`            | boolean | `true`       | Master switch. When `false`, nothing is drawn.                     |
+| `highlight_in_range` | boolean | `false`      | When `true`, in-range entities use `in_range_color`. Off by default. |
+| `box_color`          | ARGB    | `0xFFFFFFFF` | Outline color for every nearby entity (white).                     |
+| `in_range_color`     | ARGB    | `0xFFFF0000` | Outline color for in-range entities (red), only if highlighting is on. |
+| `radius`             | double  | `24.0`       | Search radius (blocks) for living entities. Clamped to `4..64`.    |
 
-The base interaction range is `3.0`, so the default `reach_bonus` of `2.0` yields `5.0` blocks of
-client-side reach while a sword is held.
+Colors are packed ARGB and may be written as `0xAARRGGBB`, `#AARRGGBB`, or a decimal literal.
+
+The in-range test uses the vanilla `isWithinEntityInteractionRange` helper (no custom distance math),
+so the red tint matches what the game itself considers reachable.
 
 ## Telemetry
 
 The mod emits **anonymous** usage telemetry to PostHog (a stable random `install_id`, MC/loader
-versions, and a one-shot `swh_enabled` event carrying your `enabled` / `reach_bonus` values). No
-personal data, no IP-based geolocation, no per-tick events.
+versions, and a one-shot `swh_display_enabled` event carrying your `enabled` / `highlight_in_range`
+values). No personal data, no IP-based geolocation, no per-frame events.
 
 **Opt out** any of these ways:
 
