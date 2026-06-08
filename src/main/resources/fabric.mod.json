@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "swordhitbox",
+  "version": "${version}",
+  "name": "SwordHitbox",
+  "description": "Étend la portée d'attaque de toutes les épées (vanilla et modées). Télémétrie anonyme activée par défaut, désactivable dans la config.",
+  "authors": [
+    "zeffut"
+  ],
+  "environment": "client",
+  "icon": "assets/swordhitbox/icon.png",
+  "entrypoints": {
+    "client": [
+      "fr.zeffut.swordhitbox.fabric.SwordHitboxFabric"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.18.0",
+    "fabric-api": "*",
+    "minecraft": "${minecraft}"
+  }
+}

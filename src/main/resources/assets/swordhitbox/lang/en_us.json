@@ -1,0 +1,8 @@
+{
+  "modmenu.summaryTranslation.swordhitbox": "Extends attack reach on entities while holding a sword.",
+  "swordhitbox.name": "SwordHitbox",
+  "swordhitbox.config.enabled": "Enable sword reach",
+  "swordhitbox.config.enabled.tooltip": "When on, holding a sword grants extra entity-interaction range.",
+  "swordhitbox.config.reach_bonus": "Reach bonus (blocks)",
+  "swordhitbox.config.reach_bonus.tooltip": "Extra blocks of reach added while a sword is held. Clamped between 0 and 16."
+}

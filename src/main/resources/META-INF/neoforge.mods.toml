@@ -1,0 +1,25 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "LicenseRef-PolyForm-Noncommercial-1.0.0"
+
+[[mods]]
+modId = "swordhitbox"
+version = "${version}"
+displayName = "SwordHitbox"
+description = "Étend la portée d'attaque de toutes les épées (vanilla et modées). Télémétrie anonyme activée par défaut, désactivable dans la config."
+authors = "zeffut"
+logoFile = "assets/swordhitbox/icon.png"
+
+[[mods."swordhitbox".dependencies]]
+modId = "neoforge"
+type = "required"
+versionRange = "[0,)"
+ordering = "NONE"
+side = "CLIENT"
+
+[[mods."swordhitbox".dependencies]]
+modId = "minecraft"
+type = "required"
+versionRange = "[0,)"
+ordering = "NONE"
+side = "CLIENT"
