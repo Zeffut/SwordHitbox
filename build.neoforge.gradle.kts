@@ -18,6 +18,17 @@ group = property("mod.group") as String
 repositories {
     mavenCentral()
     maven("https://maven.neoforged.net/releases/") { name = "NeoForged" }
+    // Cloth Config (in-game config GUI). Must be present at runtime for the menu.
+    maven("https://maven.shedaniel.me/") { name = "Shedaniel" }
+}
+
+dependencies {
+    // Cloth Config: provides the in-game config screen (me.shedaniel.clothconfig2.api.*). Compiled
+    // against and present on the dev-client runtime classpath (see additionalRuntimeClasspath).
+    val cloth = (findProperty("deps.cloth_config") as String?)?.takeIf { it.isNotBlank() }
+    if (cloth != null) {
+        add("implementation", "me.shedaniel.cloth:cloth-config-neoforge:$cloth")
+    }
 }
 
 neoForge.apply {

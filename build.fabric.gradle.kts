@@ -23,6 +23,8 @@ repositories {
     // ModMenu (optional in-game config button on Fabric). Only consumed when deps.modmenu is set
     // (i.e. on the 1.21.11-fabric node — there is no ModMenu release for 26.1.2).
     maven("https://maven.terraformersmc.com/releases") { name = "Terraformers" }
+    // Cloth Config (in-game config GUI on both loaders). Must be present at runtime for the menu.
+    maven("https://maven.shedaniel.me/") { name = "Shedaniel" }
 }
 
 dependencies {
@@ -58,6 +60,16 @@ dependencies {
     if (modmenu != null) {
         add("modCompileOnly", "com.terraformersmc:modmenu:$modmenu")
         add("modLocalRuntime", "com.terraformersmc:modmenu:$modmenu")
+    }
+
+    // Cloth Config: provides the in-game config screen (me.shedaniel.clothconfig2.api.*). It is a
+    // real runtime dependency of the menu, so modImplementation (compiled + bundled-by-reference +
+    // available in the dev client). Exclude the bundled Fabric API to avoid clobbering ours.
+    val cloth = (findProperty("deps.cloth_config") as String?)?.takeIf { it.isNotBlank() }
+    if (cloth != null) {
+        add("modImplementation", "me.shedaniel.cloth:cloth-config-fabric:$cloth") {
+            exclude(group = "net.fabricmc.fabric-api")
+        }
     }
 }
 
