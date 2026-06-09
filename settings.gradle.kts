@@ -22,6 +22,8 @@ stonecutter {
             version("$version-$loader", version).buildscript = "build.$loader.gradle.kts"
         }
 
+        mc("1.21.9", "fabric", "neoforge")
+        mc("1.21.10", "fabric", "neoforge")
         mc("1.21.11", "fabric", "neoforge")
         mc("26.1.2", "fabric", "neoforge")
 

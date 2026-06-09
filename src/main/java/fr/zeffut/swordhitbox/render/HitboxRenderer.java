@@ -33,7 +33,11 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.VertexRendering;
+//? if >=1.21.11 {
 import net.minecraft.client.render.RenderLayers;
+//?} else {
+/*import net.minecraft.client.render.RenderLayer;
+*///?}
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -56,11 +60,19 @@ import net.minecraft.client.util.math.MatrixStack;
 /*import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
+//? if >=1.21.11 {
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+//?} else {
+import net.minecraft.client.renderer.RenderType;
+//?}
 import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.registries.Registries;
+//? if >=1.21.11 {
 import net.minecraft.resources.Identifier;
+//?} else {
+import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -122,11 +134,18 @@ public final class HitboxRenderer {
     //?}
     //?}
     //? if neoforge {
+    //? if >=1.21.11 {
     /*private static final TagKey<Item> SWORDS =
             TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("minecraft", "swords"));
     private static final TagKey<Item> C_SWORDS =
             TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", "swords"));
+    *///?} else {
+    /*private static final TagKey<Item> SWORDS =
+            TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("minecraft", "swords"));
+    private static final TagKey<Item> C_SWORDS =
+            TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", "swords"));
     *///?}
+    //?}
 
     private HitboxRenderer() {}
 
@@ -222,7 +241,11 @@ public final class HitboxRenderer {
         HitResult hit = mc.crosshairTarget;
         if (changeTarget && hit instanceof EntityHitResult ehr) targeted = ehr.getEntity();
 
+        //? if >=1.21.11 {
         VertexConsumer vc = buffers.getBuffer(RenderLayers.lines());
+        //?} else {
+        /*VertexConsumer vc = buffers.getBuffer(RenderLayer.getLines());
+        *///?}
         List<Entity> entities = world.getOtherEntities(player,
                 player.getBoundingBox().expand(cfg.radius()),
                 e -> e.isAlive() && (playersOnly ? e instanceof PlayerEntity : e instanceof LivingEntity));
@@ -250,12 +273,20 @@ public final class HitboxRenderer {
 
     private static void drawBox(MatrixStack matrices, VertexConsumer vc, Box box, Vec3d cam, int argb, float lw) {
         VoxelShape shape = VoxelShapes.cuboid(box);
+        //? if >=1.21.11 {
         VertexRendering.drawOutline(matrices, vc, shape, -cam.x, -cam.y, -cam.z, argb, lw);
+        //?} else {
+        /*VertexRendering.drawOutline(matrices, vc, shape, -cam.x, -cam.y, -cam.z, argb);
+        *///?}
     }
 
     private static void drawSegment(MatrixStack matrices, VertexConsumer vc, Vec3d a, Vec3d b, Vec3d cam, int argb, float lw) {
         Box seg = new Box(a.x, a.y, a.z, b.x, b.y, b.z);
+        //? if >=1.21.11 {
         VertexRendering.drawOutline(matrices, vc, VoxelShapes.cuboid(seg), -cam.x, -cam.y, -cam.z, argb, lw);
+        //?} else {
+        /*VertexRendering.drawOutline(matrices, vc, VoxelShapes.cuboid(seg), -cam.x, -cam.y, -cam.z, argb);
+        *///?}
     }
 
     private static boolean isSword(ItemStack stack) {
@@ -289,7 +320,11 @@ public final class HitboxRenderer {
         HitResult hit = mc.hitResult;
         if (changeTarget && hit instanceof EntityHitResult ehr) targeted = ehr.getEntity();
 
+        //? if >=1.21.11 {
         VertexConsumer vc = buffers.getBuffer(RenderTypes.lines());
+        //?} else {
+        VertexConsumer vc = buffers.getBuffer(RenderType.lines());
+        //?}
         List<Entity> entities = level.getEntities(player,
                 player.getBoundingBox().inflate(cfg.radius()),
                 e -> e.isAlive() && (playersOnly ? e instanceof Player : e instanceof LivingEntity));
@@ -317,12 +352,20 @@ public final class HitboxRenderer {
 
     private static void drawBox(PoseStack pose, VertexConsumer vc, AABB box, Vec3 cam, int argb, float lw) {
         VoxelShape shape = Shapes.create(box);
+        //? if >=1.21.11 {
         ShapeRenderer.renderShape(pose, vc, shape, -cam.x, -cam.y, -cam.z, argb, lw);
+        //?} else {
+        ShapeRenderer.renderShape(pose, vc, shape, -cam.x, -cam.y, -cam.z, argb);
+        //?}
     }
 
     private static void drawSegment(PoseStack pose, VertexConsumer vc, Vec3 a, Vec3 b, Vec3 cam, int argb, float lw) {
         AABB seg = new AABB(a.x, a.y, a.z, b.x, b.y, b.z);
+        //? if >=1.21.11 {
         ShapeRenderer.renderShape(pose, vc, Shapes.create(seg), -cam.x, -cam.y, -cam.z, argb, lw);
+        //?} else {
+        ShapeRenderer.renderShape(pose, vc, Shapes.create(seg), -cam.x, -cam.y, -cam.z, argb);
+        //?}
     }
 
     private static boolean isSword(ItemStack stack) {

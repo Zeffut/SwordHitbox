@@ -11,10 +11,13 @@ import net.fabricmc.api.ClientModInitializer;
 //? if >=26.1 {
 /*import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.Minecraft;
-*///?} else {
+*///?} else if >=1.21.10 {
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
-//?}
+//?} else {
+/*import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.minecraft.client.MinecraftClient;
+*///?}
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,14 +49,21 @@ public class SwordHitboxFabric implements ClientModInitializer {
             HitboxRenderer.render(ctx.poseStack(), ctx.bufferSource(),
                     mc.gameRenderer.getMainCamera().position(), tickProgress);
         });
-        *///?} else {
+        *///?} else if >=1.21.10 {
         WorldRenderEvents.AFTER_ENTITIES.register(ctx -> {
             MinecraftClient mc = MinecraftClient.getInstance();
             float tickDelta = mc.getRenderTickCounter().getTickProgress(false);
             HitboxRenderer.render(ctx.matrices(), ctx.consumers(),
                     mc.gameRenderer.getCamera().getCameraPos(), tickDelta);
         });
-        //?}
+        //?} else {
+        /*WorldRenderEvents.AFTER_ENTITIES.register(ctx -> {
+            MinecraftClient mc = MinecraftClient.getInstance();
+            float tickDelta = mc.getRenderTickCounter().getTickProgress(false);
+            HitboxRenderer.render(ctx.matrixStack(), ctx.consumers(),
+                    mc.gameRenderer.getCamera().getCameraPos(), tickDelta);
+        });
+        *///?}
 
         String mc = Platform.mcVersion();
         String modVer = Platform.modVersion();

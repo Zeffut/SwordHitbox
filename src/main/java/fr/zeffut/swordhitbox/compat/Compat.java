@@ -8,8 +8,12 @@ import net.minecraft.util.Identifier;
 //?}
 //?}
 //? if neoforge {
+//? if >=1.21.11 {
 /*import net.minecraft.resources.Identifier;
+*///?} else {
+/*import net.minecraft.resources.ResourceLocation;
 *///?}
+//?}
 
 /**
  * Cross-version / cross-loader API shims, centralised so the rest of the codebase stays clean.
@@ -29,6 +33,11 @@ public final class Compat {
     private Compat() {}
 
     /** Builds a namespaced id in a version/loader-portable way. */
+    //? if neoforge && <1.21.11 {
+    /*public static ResourceLocation id(String namespace, String path) {
+        return ResourceLocation.fromNamespaceAndPath(namespace, path);
+    }
+    *///?} else {
     public static Identifier id(String namespace, String path) {
         //? if fabric {
         //? if >=26.1 {
@@ -41,4 +50,5 @@ public final class Compat {
         /*return Identifier.fromNamespaceAndPath(namespace, path);*/
         //?}
     }
+    //?}
 }

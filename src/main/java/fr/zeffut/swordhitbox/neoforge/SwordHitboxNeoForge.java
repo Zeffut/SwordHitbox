@@ -10,7 +10,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+//? if >=1.21.11 {
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+//?} else {
+/*import net.minecraft.client.renderer.RenderType;
+*///?}
 import net.minecraft.world.phys.Vec3;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.neoforged.api.distmarker.Dist;
@@ -85,7 +89,11 @@ public class SwordHitboxNeoForge {
         float tickProgress = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
         MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
         HitboxRenderer.render(pose, buffers, camPos, tickProgress);
+        //? if >=1.21.11 {
         buffers.endBatch(RenderTypes.lines());
+        //?} else {
+        /*buffers.endBatch(RenderType.lines());
+        *///?}
     }
 }
 //?}
