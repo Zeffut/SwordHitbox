@@ -16,6 +16,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -36,6 +37,7 @@ import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryKeys;
@@ -62,6 +64,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -147,6 +150,7 @@ public final class HitboxRenderer {
         boolean changeTarget = cfg.changeTargetColor();
         boolean renderEye = cfg.renderEyeBox();
         boolean renderView = cfg.renderViewVector();
+        boolean playersOnly = cfg.playersOnly();
         float lw = cfg.lineWidth();
 
         Entity targeted = null;
@@ -156,7 +160,7 @@ public final class HitboxRenderer {
         VertexConsumer vc = buffers.getBuffer(RenderTypes.lines());
         List<Entity> entities = level.getEntities(player,
                 player.getBoundingBox().inflate(cfg.radius()),
-                e -> e instanceof LivingEntity && e.isAlive());
+                e -> e.isAlive() && (playersOnly ? e instanceof Player : e instanceof LivingEntity));
         for (Entity e : entities) {
             Vec3 lerp = e.getPosition(tickProgress);
             Vec3 delta = lerp.subtract(e.position());
@@ -211,6 +215,7 @@ public final class HitboxRenderer {
         boolean changeTarget = cfg.changeTargetColor();
         boolean renderEye = cfg.renderEyeBox();
         boolean renderView = cfg.renderViewVector();
+        boolean playersOnly = cfg.playersOnly();
         float lw = cfg.lineWidth();
 
         Entity targeted = null;
@@ -220,7 +225,7 @@ public final class HitboxRenderer {
         VertexConsumer vc = buffers.getBuffer(RenderLayers.lines());
         List<Entity> entities = world.getOtherEntities(player,
                 player.getBoundingBox().expand(cfg.radius()),
-                e -> e instanceof LivingEntity && e.isAlive());
+                e -> e.isAlive() && (playersOnly ? e instanceof PlayerEntity : e instanceof LivingEntity));
         for (Entity e : entities) {
             Vec3d lerp = e.getLerpedPos(tickDelta);
             Vec3d delta = lerp.subtract(new Vec3d(e.getX(), e.getY(), e.getZ()));
@@ -277,6 +282,7 @@ public final class HitboxRenderer {
         boolean changeTarget = cfg.changeTargetColor();
         boolean renderEye = cfg.renderEyeBox();
         boolean renderView = cfg.renderViewVector();
+        boolean playersOnly = cfg.playersOnly();
         float lw = cfg.lineWidth();
 
         Entity targeted = null;
@@ -286,7 +292,7 @@ public final class HitboxRenderer {
         VertexConsumer vc = buffers.getBuffer(RenderTypes.lines());
         List<Entity> entities = level.getEntities(player,
                 player.getBoundingBox().inflate(cfg.radius()),
-                e -> e instanceof LivingEntity && e.isAlive());
+                e -> e.isAlive() && (playersOnly ? e instanceof Player : e instanceof LivingEntity));
         for (Entity e : entities) {
             Vec3 lerp = e.getPosition(tickProgress);
             Vec3 delta = lerp.subtract(e.position());

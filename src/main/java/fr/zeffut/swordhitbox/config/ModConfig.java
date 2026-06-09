@@ -38,6 +38,7 @@ public final class ModConfig {
 
     // ---- defaults --------------------------------------------------------------------------
     public static final boolean DEF_ENABLED = true;
+    public static final boolean DEF_PLAYERS_ONLY = true;
     public static final boolean DEF_RENDER_EYE_BOX = true;
     public static final boolean DEF_RENDER_VIEW_VECTOR = true;
     public static final boolean DEF_CHANGE_TARGET_COLOR = false;
@@ -57,6 +58,7 @@ public final class ModConfig {
     private String installId;
 
     private boolean enabled = DEF_ENABLED;
+    private boolean playersOnly = DEF_PLAYERS_ONLY;
     private boolean renderEyeBox = DEF_RENDER_EYE_BOX;
     private boolean renderViewVector = DEF_RENDER_VIEW_VECTOR;
     private boolean changeTargetColor = DEF_CHANGE_TARGET_COLOR;
@@ -92,6 +94,9 @@ public final class ModConfig {
 
     public boolean enabled() { return enabled; }
     public void setEnabled(boolean v) { this.enabled = v; save(); }
+
+    public boolean playersOnly() { return playersOnly; }
+    public void setPlayersOnly(boolean v) { this.playersOnly = v; save(); }
 
     public boolean renderEyeBox() { return renderEyeBox; }
     public void setRenderEyeBox(boolean v) { this.renderEyeBox = v; save(); }
@@ -134,6 +139,7 @@ public final class ModConfig {
                 cfg.telemetry = parseBool(c, "telemetry", true);
                 cfg.installId = extractString(c, "install_id");
                 cfg.enabled = parseBool(c, "enabled", DEF_ENABLED);
+                cfg.playersOnly = parseBool(c, "playersOnly", DEF_PLAYERS_ONLY);
                 cfg.renderEyeBox = parseBool(c, "renderEyeBox", DEF_RENDER_EYE_BOX);
                 cfg.renderViewVector = parseBool(c, "renderViewVector", DEF_RENDER_VIEW_VECTOR);
                 cfg.changeTargetColor = parseBool(c, "changeTargetColor", DEF_CHANGE_TARGET_COLOR);
@@ -170,6 +176,7 @@ public final class ModConfig {
             sb.append("  \"telemetry\": ").append(telemetry).append(",\n");
             sb.append("  \"install_id\": \"").append(esc(installId)).append("\",\n");
             sb.append("  \"enabled\": ").append(enabled).append(",\n");
+            sb.append("  \"playersOnly\": ").append(playersOnly).append(",\n");
             sb.append("  \"renderEyeBox\": ").append(renderEyeBox).append(",\n");
             sb.append("  \"renderViewVector\": ").append(renderViewVector).append(",\n");
             sb.append("  \"changeTargetColor\": ").append(changeTargetColor).append(",\n");

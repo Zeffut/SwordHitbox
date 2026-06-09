@@ -57,6 +57,12 @@ public final class ConfigScreenFactory {
                 .setSaveConsumer(cfg::setEnabled)
                 .build());
 
+        behavior.addEntry(eb.startBooleanToggle(text("Players only"), cfg.playersOnly())
+                .setDefaultValue(ModConfig.DEF_PLAYERS_ONLY)
+                .setTooltip(text("Only draw hitboxes for other players, not all mobs"))
+                .setSaveConsumer(cfg::setPlayersOnly)
+                .build());
+
         behavior.addEntry(eb.startBooleanToggle(text("Render Eye Box"), cfg.renderEyeBox())
                 .setDefaultValue(ModConfig.DEF_RENDER_EYE_BOX)
                 .setTooltip(text("Thin band drawn at the entity's eye height"))
