@@ -12,6 +12,9 @@
   "entrypoints": {
     "client": [
       "fr.zeffut.swordhitbox.fabric.SwordHitboxFabric"
+    ],
+    "modmenu": [
+      "fr.zeffut.swordhitbox.fabric.ModMenuIntegration"
     ]
   },
   "depends": {

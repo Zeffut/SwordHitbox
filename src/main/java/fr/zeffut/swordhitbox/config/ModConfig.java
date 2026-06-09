@@ -73,6 +73,12 @@ public final class ModConfig {
         return Boolean.parseBoolean(settings.getOrDefault(KEY_ENABLED, String.valueOf(DEFAULT_ENABLED)));
     }
 
+    /** Sets the hitbox-overlay toggle and persists immediately. */
+    public void setEnabled(boolean value) {
+        settings.put(KEY_ENABLED, String.valueOf(value));
+        save();
+    }
+
     /** Writes the mod's setting defaults if absent, persisting once on first run. */
     private void ensureDefaults() {
         boolean changed = false;

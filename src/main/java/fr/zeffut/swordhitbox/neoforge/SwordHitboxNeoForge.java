@@ -1,6 +1,7 @@
 //? if neoforge {
 package fr.zeffut.swordhitbox.neoforge;
 
+import fr.zeffut.swordhitbox.config.ConfigScreen;
 import fr.zeffut.swordhitbox.config.ModConfig;
 import fr.zeffut.swordhitbox.hitbox.SwordHitboxToggle;
 import fr.zeffut.swordhitbox.platform.Platform;
@@ -9,8 +10,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +28,20 @@ import org.slf4j.LoggerFactory;
 public class SwordHitboxNeoForge {
     private static final Logger LOG = LoggerFactory.getLogger("SwordHitbox");
 
-    public SwordHitboxNeoForge(IEventBus modBus) {
+    public SwordHitboxNeoForge(IEventBus modBus, ModContainer container) {
         // Touch config first so install_id / telemetry opt-out are resolved before any capture.
         ModConfig cfg = ModConfig.get();
 
         NeoForge.EVENT_BUS.addListener(
                 (ClientTickEvent.Post event) -> SwordHitboxToggle.clientTick());
+
+        // Native "Config" button in the NeoForge mod list, opening our vanilla ConfigScreen.
+        // IConfigScreenFactory.createScreen(ModContainer, Screen) has the same signature on
+        // 1.21.11 and 26.1.2, so no version gate is needed here. The mod is @Mod(dist = CLIENT),
+        // so this constructor only runs client-side.
+        container.registerExtensionPoint(
+                IConfigScreenFactory.class,
+                (IConfigScreenFactory) (c, parent) -> new ConfigScreen(parent));
 
         String mc = Platform.mcVersion();
         String modVer = Platform.modVersion();

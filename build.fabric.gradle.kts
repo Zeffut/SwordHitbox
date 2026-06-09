@@ -20,6 +20,9 @@ group = property("mod.group") as String
 repositories {
     mavenCentral()
     maven("https://maven.fabricmc.net/") { name = "Fabric" }
+    // ModMenu (optional in-game config button on Fabric). Only consumed when deps.modmenu is set
+    // (i.e. on the 1.21.11-fabric node — there is no ModMenu release for 26.1.2).
+    maven("https://maven.terraformersmc.com/releases") { name = "Terraformers" }
 }
 
 dependencies {
@@ -47,6 +50,15 @@ dependencies {
 
     add("modImplementation", "net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
     add("modImplementation", "net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
+
+    // ModMenu: optional. modCompileOnly so it is NOT bundled / NOT a hard runtime dependency in prod,
+    // modLocalRuntime so it shows up in the dev client. Only wired on nodes that define deps.modmenu
+    // (1.21.11-fabric); the 26.1.2-fabric node leaves it unset and the integration class is gated out.
+    val modmenu = (findProperty("deps.modmenu") as String?)?.takeIf { it.isNotBlank() }
+    if (modmenu != null) {
+        add("modCompileOnly", "com.terraformersmc:modmenu:$modmenu")
+        add("modLocalRuntime", "com.terraformersmc:modmenu:$modmenu")
+    }
 }
 
 loom.runs.named("client") {
