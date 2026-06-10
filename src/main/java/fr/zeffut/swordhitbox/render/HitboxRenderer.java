@@ -177,9 +177,15 @@ public final class HitboxRenderer {
         if (changeTarget && hit instanceof EntityHitResult ehr) targeted = ehr.getEntity();
 
         VertexConsumer vc = buffers.getBuffer(RenderTypes.lines());
-        List<Entity> entities = level.getEntities(player,
-                player.getBoundingBox().inflate(cfg.radius()),
-                e -> e.isAlive() && (playersOnly ? e instanceof Player : e instanceof LivingEntity));
+        List<? extends Entity> entities;
+        if (playersOnly) {
+            List<? extends Player> players = level.players();
+            entities = players.stream().filter(p -> p != player && p.isAlive()).toList();
+        } else {
+            entities = level.getEntities(player,
+                    player.getBoundingBox().inflate(cfg.radius()),
+                    e -> e.isAlive() && e instanceof LivingEntity);
+        }
         for (Entity e : entities) {
             Vec3 lerp = e.getPosition(tickProgress);
             Vec3 delta = lerp.subtract(e.position());
@@ -246,9 +252,15 @@ public final class HitboxRenderer {
         //?} else {
         /*VertexConsumer vc = buffers.getBuffer(RenderLayer.getLines());
         *///?}
-        List<Entity> entities = world.getOtherEntities(player,
-                player.getBoundingBox().expand(cfg.radius()),
-                e -> e.isAlive() && (playersOnly ? e instanceof PlayerEntity : e instanceof LivingEntity));
+        List<? extends Entity> entities;
+        if (playersOnly) {
+            List<? extends PlayerEntity> players = world.getPlayers();
+            entities = players.stream().filter(p -> p != player && p.isAlive()).toList();
+        } else {
+            entities = world.getOtherEntities(player,
+                    player.getBoundingBox().expand(cfg.radius()),
+                    e -> e.isAlive() && e instanceof LivingEntity);
+        }
         for (Entity e : entities) {
             Vec3d lerp = e.getLerpedPos(tickDelta);
             Vec3d delta = lerp.subtract(new Vec3d(e.getX(), e.getY(), e.getZ()));
@@ -325,9 +337,15 @@ public final class HitboxRenderer {
         //?} else {
         VertexConsumer vc = buffers.getBuffer(RenderType.lines());
         //?}
-        List<Entity> entities = level.getEntities(player,
-                player.getBoundingBox().inflate(cfg.radius()),
-                e -> e.isAlive() && (playersOnly ? e instanceof Player : e instanceof LivingEntity));
+        List<? extends Entity> entities;
+        if (playersOnly) {
+            List<? extends Player> players = level.players();
+            entities = players.stream().filter(p -> p != player && p.isAlive()).toList();
+        } else {
+            entities = level.getEntities(player,
+                    player.getBoundingBox().inflate(cfg.radius()),
+                    e -> e.isAlive() && e instanceof LivingEntity);
+        }
         for (Entity e : entities) {
             Vec3 lerp = e.getPosition(tickProgress);
             Vec3 delta = lerp.subtract(e.position());
