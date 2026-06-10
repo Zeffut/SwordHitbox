@@ -39,8 +39,8 @@ public final class ModConfig {
     // ---- defaults --------------------------------------------------------------------------
     public static final boolean DEF_ENABLED = true;
     public static final boolean DEF_PLAYERS_ONLY = true;
-    public static final boolean DEF_RENDER_EYE_BOX = true;
-    public static final boolean DEF_RENDER_VIEW_VECTOR = true;
+    public static final boolean DEF_RENDER_EYE_BOX = false;
+    public static final boolean DEF_RENDER_VIEW_VECTOR = false;
     public static final boolean DEF_CHANGE_TARGET_COLOR = false;
     public static final int DEF_BOX_COLOR = 0xFFFFFFFF;     // white
     public static final int DEF_EYE_COLOR = 0xFFFF0000;     // red
@@ -49,9 +49,9 @@ public final class ModConfig {
     public static final float DEF_LINE_WIDTH = 2.5f;
     public static final float LINE_WIDTH_MIN = 0f;
     public static final float LINE_WIDTH_MAX = 25f;
-    public static final double DEF_RADIUS = 24.0;
+    public static final double DEF_RADIUS = 128.0;
     public static final double RADIUS_MIN = 4.0;
-    public static final double RADIUS_MAX = 64.0;
+    public static final double RADIUS_MAX = 512.0;
 
     // ---- fields ----------------------------------------------------------------------------
     private boolean telemetry = true;
