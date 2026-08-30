@@ -103,9 +103,10 @@ if (modrinthToken.isPresent) {
         displayName.set("${property("mod.name")} ${property("mod.version")} (NeoForge $mcVersion)")
         version.set("${property("mod.version")}+neoforge-$mcVersion")
         type = me.modmuss50.mpp.ReleaseType.STABLE
+        changelog.set("Mise à jour automatique pour Minecraft $mcVersion (agent Modrinth autonome Zeffut).")
         modLoaders.add("neoforge")
         modrinth {
-            projectId.set("swordhitbox")
+            projectId.set("xCnjRarB")
             accessToken.set(modrinthToken)
             minecraftVersions.add(mcVersion)
         }
