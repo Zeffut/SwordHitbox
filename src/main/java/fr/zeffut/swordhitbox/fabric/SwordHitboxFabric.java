@@ -8,10 +8,15 @@ import fr.zeffut.swordhitbox.telemetry.Telemetry;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.fabricmc.api.ClientModInitializer;
-//? if >=26.1 {
-/*import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
+//? if >=26.2 {
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 import net.minecraft.client.Minecraft;
-*///?} else if >=1.21.10 {
+import net.minecraft.world.phys.Vec3;
+//?} else if >=26.1 {
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
+import net.minecraft.client.Minecraft;
+//?} else if >=1.21.10 {
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 //?} else {
@@ -22,34 +27,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Fabric client entrypoint. Initializes config + telemetry, emits the standard
- * {@code client_started} / {@code mod_loaded} events plus a one-shot {@code swh_display_enabled}
- * event, and registers the after-entities world render hook that draws the custom interpolated
- * hitbox overlay — see {@link HitboxRenderer}.
- *
- * <p>The Fabric render-event surface diverges across versions: 1.21.11 (Yarn) exposes
- * {@code WorldRenderEvents.AFTER_ENTITIES} (package {@code ...rendering.v1.world}) with
- * {@code matrices()}/{@code consumers()} and a {@code RenderTickCounter} for the partial tick; 26.1
- * renamed it to {@code LevelRenderEvents} (package {@code ...rendering.v1.level}), so we register at
- * {@code AFTER_SOLID_FEATURES} and pull pose/buffers/camera/partial-tick from the level render
- * context and the {@code DeltaTracker}.
+ * Fabric client entrypoint. Initializes config + telemetry and registers the after-entities world
+ * render hook that draws the interpolated hitbox overlay — see {@link HitboxRenderer}.
  */
 public class SwordHitboxFabric implements ClientModInitializer {
     private static final Logger LOG = LoggerFactory.getLogger("SwordHitbox");
 
     @Override
     public void onInitializeClient() {
-        // Touch config first so install_id / telemetry opt-out are resolved before any capture.
         ModConfig cfg = ModConfig.get();
 
-        //? if >=26.1 {
-        /*LevelRenderEvents.AFTER_SOLID_FEATURES.register(ctx -> {
+        //? if >=26.2 {
+        LevelRenderEvents.AFTER_SOLID_FEATURES.register(ctx -> {
+            Minecraft mc = Minecraft.getInstance();
+            float tickProgress = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
+            Vec3 cam = mc.gameRenderer.mainCamera().position();
+            HitboxRenderer.render(ctx.poseStack(), ctx.submitNodeCollector(), cam, tickProgress);
+        });
+        //?} else if >=26.1 {
+        LevelRenderEvents.AFTER_SOLID_FEATURES.register(ctx -> {
             Minecraft mc = Minecraft.getInstance();
             float tickProgress = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
             HitboxRenderer.render(ctx.poseStack(), ctx.bufferSource(),
                     mc.gameRenderer.getMainCamera().position(), tickProgress);
         });
-        *///?} else if >=1.21.10 {
+        //?} else if >=1.21.10 {
         WorldRenderEvents.AFTER_ENTITIES.register(ctx -> {
             MinecraftClient mc = MinecraftClient.getInstance();
             float tickDelta = mc.getRenderTickCounter().getTickProgress(false);

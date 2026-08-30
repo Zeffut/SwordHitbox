@@ -4,7 +4,30 @@ import fr.zeffut.swordhitbox.config.ModConfig;
 import java.util.List;
 
 //? if fabric {
-//? if >=26.1 {
+//? if >=26.2 {
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import com.mojang.blaze3d.vertex.PoseStack;
+//?} else if >=26.1 {
 /*import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -90,30 +113,17 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 *///?}
 
 /**
- * Client-side, purely visual hitbox overlay modeled on the vanilla F3+B debug rendering and on the
- * "combat-hitboxes" mod: while the local player holds a sword, every nearby living entity gets its
- * collision box outlined, with an optional eye-height band, an optional look-direction segment, and
- * an optional target recolor. Nothing is sent to the server (local rendering only), so it works on
- * every server and changes no gameplay.
+ * Client-side, purely visual hitbox overlay. While the local player holds a sword, every nearby
+ * living entity gets its collision box outlined, with an optional eye-height band, an optional
+ * look-direction segment, and an optional target recolor. Nothing is sent to the server.
  *
- * <p><b>Interpolation (the key fidelity fix):</b> entities are drawn at their <em>interpolated</em>
- * render position, not their raw tick position. We compute the lerp delta
- * {@code lerp = entity.getPosition(tickProgress) - entity.position()} (Mojmap) /
- * {@code entity.getLerpedPos(tickDelta) - entity.getPos()} (Yarn) and offset the bounding box by it,
- * so the overlay tracks moving entities smoothly instead of lagging a tick behind.
- *
- * <p>Swords are detected via the {@code minecraft:swords} item tag (with a {@code c:swords}
- * fallback) so it covers vanilla, component-defined and modded swords — never {@code instanceof}.
- *
- * <p>The eye band and the look-direction segment are drawn as thin axis-aligned boxes through the
- * same outline API used for the main box; this keeps the renderer to a single, version-robust
- * drawing primitive across all four Stonecutter nodes (Yarn / Mojmap, Fabric / NeoForge).
- *
- * <p>Mapping-gated: Yarn on {@code fabric && <26.1}
- * ({@code VertexRendering.drawOutline} / {@code VoxelShapes.cuboid} / {@code getLerpedPos} /
- * {@code getStandingEyeHeight} / {@code getRotationVec}), Mojmap everywhere else
- * ({@code ShapeRenderer.renderShape} / {@code Shapes.create} / {@code getPosition} /
- * {@code getEyeHeight} / {@code getViewVector}).
+ * <p>Render APIs differ across MC versions:
+ * <ul>
+ *   <li><b>26.2+</b> (Mojmap): {@code LevelRenderEvents} + {@code SubmitNodeCollector.submitShapeOutline}
+ *       (the new nodal render pipeline; ShapeRenderer/MultiBufferSource were removed).</li>
+ *   <li><b>26.1</b> (Mojmap): {@code LevelRenderEvents} + {@code ShapeRenderer.renderShape}.</li>
+ *   <li><b>1.21.10+</b> (Yarn): {@code WorldRenderEvents} + {@code VertexRendering.drawOutline}.</li>
+ * </ul>
  */
 public final class HitboxRenderer {
 
@@ -150,7 +160,73 @@ public final class HitboxRenderer {
     private HitboxRenderer() {}
 
     //? if fabric {
-    //? if >=26.1 {
+    //? if >=26.2 {
+    public static void render(PoseStack pose, SubmitNodeCollector collector, Vec3 camPos, float tickProgress) {
+        if (pose == null || collector == null || camPos == null) return;
+        ModConfig cfg = ModConfig.get();
+        if (!cfg.enabled()) return;
+
+        Minecraft mc = Minecraft.getInstance();
+        LocalPlayer player = mc.player;
+        ClientLevel level = mc.level;
+        if (player == null || level == null) return;
+        if (!isSword(player.getMainHandItem())) return;
+
+        int boxColor = cfg.boxColor();
+        int eyeColor = cfg.eyeColor();
+        int viewColor = cfg.viewColor();
+        int targetColor = cfg.targetColor();
+        boolean changeTarget = cfg.changeTargetColor();
+        boolean renderEye = cfg.renderEyeBox();
+        boolean renderView = cfg.renderViewVector();
+        boolean playersOnly = cfg.playersOnly();
+        float lw = cfg.lineWidth();
+
+        Entity targeted = null;
+        HitResult hit = mc.hitResult;
+        if (changeTarget && hit instanceof EntityHitResult ehr) targeted = ehr.getEntity();
+
+        List<? extends Entity> entities;
+        if (playersOnly) {
+            List<? extends Player> players = level.players();
+            entities = players.stream().filter(p -> p != player && p.isAlive()).toList();
+        } else {
+            entities = level.getEntities(player,
+                    player.getBoundingBox().inflate(cfg.radius()),
+                    e -> e.isAlive() && e instanceof LivingEntity);
+        }
+        for (Entity e : entities) {
+            Vec3 lerp = e.getPosition(tickProgress);
+            Vec3 delta = lerp.subtract(e.position());
+            AABB box = e.getBoundingBox().move(delta);
+
+            int color = (changeTarget && e == targeted) ? targetColor : boxColor;
+            drawBox(pose, collector, box, camPos, color, lw);
+
+            if (renderEye) {
+                double eyeY = box.minY + e.getEyeHeight();
+                drawBox(pose, collector, new AABB(box.minX, eyeY - EYE_HALF, box.minZ,
+                        box.maxX, eyeY + EYE_HALF, box.maxZ), camPos, eyeColor, lw);
+            }
+            if (renderView) {
+                Vec3 eye = lerp.add(0.0, e.getEyeHeight(), 0.0);
+                Vec3 look = e.getViewVector(tickProgress);
+                Vec3 end = eye.add(look.scale(VIEW_LEN));
+                drawSegment(pose, collector, eye, end, camPos, viewColor, lw);
+            }
+        }
+    }
+
+    private static void drawBox(PoseStack pose, SubmitNodeCollector collector, AABB box, Vec3 cam, int argb, float lw) {
+        VoxelShape shape = Shapes.create(box);
+        collector.submitShapeOutline(pose, shape, RenderType.create("swordhitbox_lines", RenderSetup.builder(RenderPipelines.LINES).createRenderSetup()), argb, lw, false);
+    }
+
+    private static void drawSegment(PoseStack pose, SubmitNodeCollector collector, Vec3 a, Vec3 b, Vec3 cam, int argb, float lw) {
+        AABB seg = new AABB(a.x, a.y, a.z, b.x, b.y, b.z);
+        collector.submitShapeOutline(pose, Shapes.create(seg), RenderType.create("swordhitbox_lines", RenderSetup.builder(RenderPipelines.LINES).createRenderSetup()), argb, lw, false);
+    }
+    //?} else if >=26.1 {
     /*public static void render(PoseStack pose, MultiBufferSource buffers, Vec3 camPos, float tickProgress) {
         if (pose == null || buffers == null || camPos == null) return;
         ModConfig cfg = ModConfig.get();
@@ -216,10 +292,6 @@ public final class HitboxRenderer {
     private static void drawSegment(PoseStack pose, VertexConsumer vc, Vec3 a, Vec3 b, Vec3 cam, int argb, float lw) {
         AABB seg = new AABB(a.x, a.y, a.z, b.x, b.y, b.z);
         ShapeRenderer.renderShape(pose, vc, Shapes.create(seg), -cam.x, -cam.y, -cam.z, argb, lw);
-    }
-
-    private static boolean isSword(ItemStack stack) {
-        return !stack.isEmpty() && (stack.is(SWORDS) || stack.is(C_SWORDS));
     }
     *///?} else {
     public static void render(MatrixStack matrices, VertexConsumerProvider buffers, Vec3d camPos, float tickDelta) {
@@ -299,10 +371,6 @@ public final class HitboxRenderer {
         //?} else {
         /*VertexRendering.drawOutline(matrices, vc, VoxelShapes.cuboid(seg), -cam.x, -cam.y, -cam.z, argb);
         *///?}
-    }
-
-    private static boolean isSword(ItemStack stack) {
-        return !stack.isEmpty() && (stack.isIn(SWORDS) || stack.isIn(C_SWORDS));
     }
     //?}
     //?}
@@ -385,8 +453,20 @@ public final class HitboxRenderer {
         ShapeRenderer.renderShape(pose, vc, Shapes.create(seg), -cam.x, -cam.y, -cam.z, argb);
         //?}
     }
+    *///?}
 
+    //? if fabric {
+    //? if >=26.1 {
+    /*private static boolean isSword(ItemStack stack) {
+        return !stack.isEmpty() && (stack.is(SWORDS) || stack.is(C_SWORDS));
+    }
+    *///?} else {
     private static boolean isSword(ItemStack stack) {
+        return !stack.isEmpty() && (stack.isIn(SWORDS) || stack.isIn(C_SWORDS));
+    }
+    //?}
+    //?} else {
+    /*private static boolean isSword(ItemStack stack) {
         return !stack.isEmpty() && (stack.is(SWORDS) || stack.is(C_SWORDS));
     }
     *///?}

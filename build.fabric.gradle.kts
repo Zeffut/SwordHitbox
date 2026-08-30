@@ -136,3 +136,12 @@ if (modrinthToken.isPresent) {
         }
     }
 }
+
+// Tâche helper : imprime le runtime classpath (pour tests externes)
+tasks.register("printRuntimeCp") {
+    doLast {
+        val cp = (configurations.findByName("runtimeClasspath")?.files ?: emptySet())
+            .joinToString(separator = ":")
+        println("CLASSPATH=$cp")
+    }
+}
