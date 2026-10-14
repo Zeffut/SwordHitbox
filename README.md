@@ -37,9 +37,13 @@ Settings live in `config/swordhitbox.json` (created on first run) under the `set
 
 ## Telemetry
 
-The mod emits **anonymous** usage telemetry to PostHog (a stable random `install_id`, MC/loader
-versions, and a one-shot `swh_hitboxes_shown` event carrying your `enabled` value). No personal
-data, no IP-based geolocation, no per-frame events.
+The mod emits **pseudonymous** usage telemetry to PostHog (a stable random `install_id`, MC/loader
+versions, and a one-shot `swh_hitboxes_shown` event carrying your `enabled` value). No player
+names or account identifiers are included in that payload, and no per-frame events are emitted.
+The persistent random ID links events from the same installation; it does not guarantee anonymity.
+PostHog sees the network IP during a request, even with `$ip: null` in the payload.
+Server-side IP-derived geolocation may therefore be possible; current project settings are not
+verified here. This clarification does not add any collection.
 
 **Opt out** any of these ways:
 
