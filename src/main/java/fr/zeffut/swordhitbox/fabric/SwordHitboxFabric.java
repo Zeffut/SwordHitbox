@@ -70,20 +70,18 @@ public class SwordHitboxFabric implements ClientModInitializer {
         String mc = Platform.mcVersion();
         String modVer = Platform.modVersion();
 
-        Map<String, Object> started = new LinkedHashMap<>();
-        started.put("loader", "fabric");
-        started.put("installed_mods_count", Platform.installedModCount());
-        started.put("os_name", System.getProperty("os.name"));
-        started.put("os_arch", System.getProperty("os.arch"));
-        started.put("java_version", System.getProperty("java.version"));
-        Telemetry.capture("client_started", "mod-fabric", mc, modVer, started);
-        Telemetry.capture("mod_loaded", "mod-fabric", mc, modVer, Map.of("loader", "fabric"));
-
-        Map<String, Object> display = new LinkedHashMap<>();
-        display.put("enabled", cfg.enabled());
-        display.put("render_eye_box", cfg.renderEyeBox());
-        display.put("render_view_vector", cfg.renderViewVector());
-        Telemetry.captureModEvent("display_enabled", "mod-fabric", mc, modVer, display);
+        // A single event per launch: mod_loaded carries what client_started and
+        // swh_display_enabled used to send separately.
+        Map<String, Object> loaded = new LinkedHashMap<>();
+        loaded.put("loader", "fabric");
+        loaded.put("installed_mods_count", Platform.installedModCount());
+        loaded.put("os_name", System.getProperty("os.name"));
+        loaded.put("os_arch", System.getProperty("os.arch"));
+        loaded.put("java_version", System.getProperty("java.version"));
+        loaded.put("display_enabled", cfg.enabled());
+        loaded.put("render_eye_box", cfg.renderEyeBox());
+        loaded.put("render_view_vector", cfg.renderViewVector());
+        Telemetry.capture("mod_loaded", "mod-fabric", mc, modVer, loaded);
 
         LOG.info("[SwordHitbox] initialized on fabric {} (telemetry={})", mc, Telemetry.enabled());
     }

@@ -38,7 +38,7 @@ Settings live in `config/swordhitbox.json` (created on first run) under the `set
 ## Telemetry
 
 The mod emits **anonymous** usage telemetry to PostHog (a stable random `install_id`, MC/loader
-versions, and a one-shot `swh_hitboxes_shown` event carrying your `enabled` value). No personal
+versions, and a single `mod_loaded` event per launch carrying your display settings). No personal
 data, no IP-based geolocation, no per-frame events.
 
 **Opt out** any of these ways:

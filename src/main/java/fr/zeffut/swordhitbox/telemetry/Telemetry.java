@@ -65,6 +65,8 @@ public final class Telemetry {
             props.put("mc_version", mcVersion);
             props.put("component_version", modVersion);
             props.put("install_id", INSTALL_ID);
+            // Anonymous installs: no PostHog person profile is needed (cheaper events).
+            props.put("$process_person_profile", false);
             if (properties != null) props.putAll(properties);
 
             String body = "{\"api_key\":\"" + API_KEY + "\",\"event\":\"" + esc(event)

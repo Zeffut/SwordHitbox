@@ -128,7 +128,9 @@ if (modrinthToken.isPresent) {
         displayName.set("${property("mod.name")} ${property("mod.version")} (Fabric $mcVersion)")
         version.set("${property("mod.version")}+fabric-$mcVersion")
         type = me.modmuss50.mpp.ReleaseType.STABLE
-        changelog.set("Mise à jour automatique pour Minecraft $mcVersion (agent Modrinth autonome Zeffut).")
+        // Release notes: `-Ppublish.changelog="..."` overrides the default port message.
+        changelog.set(providers.gradleProperty("publish.changelog")
+            .orElse("Mise à jour automatique pour Minecraft $mcVersion (agent Modrinth autonome Zeffut)."))
         modLoaders.add("fabric")
         modrinth {
             projectId.set("xCnjRarB")
