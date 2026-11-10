@@ -19,7 +19,9 @@ stonecutter {
         // every (MC version x loader) pair is a Stonecutter node sharing a single `src/`,
         // each pointing at the matching loader buildscript.
         fun mc(version: String, vararg loaders: String) = loaders.forEach { loader ->
-            version("$version-$loader", version).buildscript = "build.$loader.gradle.kts"
+            version("$version-$loader", version).buildscript =
+                if (version == "26.3" && loader == "fabric") "build.fabric-modern.gradle.kts"
+                else "build.$loader.gradle.kts"
         }
 
         mc("1.21.9", "fabric", "neoforge")

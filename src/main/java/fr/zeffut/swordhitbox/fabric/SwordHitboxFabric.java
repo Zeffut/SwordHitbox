@@ -3,7 +3,14 @@ package fr.zeffut.swordhitbox.fabric;
 
 import fr.zeffut.swordhitbox.config.ModConfig;
 import fr.zeffut.swordhitbox.platform.Platform;
+//? if >=26.3 {
+import fr.zeffut.swordhitbox.render.ModernHitboxRenderer;
+import java.util.List;
+import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents;
+//?} else {
 import fr.zeffut.swordhitbox.render.HitboxRenderer;
+//?}
 import fr.zeffut.swordhitbox.telemetry.Telemetry;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,13 +38,23 @@ import org.slf4j.LoggerFactory;
  * render hook that draws the interpolated hitbox overlay — see {@link HitboxRenderer}.
  */
 public class SwordHitboxFabric implements ClientModInitializer {
+    //? if >=26.3 {
+    private static final RenderStateDataKey<List<ModernHitboxRenderer.Outline>> OUTLINES =
+            RenderStateDataKey.create(() -> "swordhitbox:outlines");
+    //?}
     private static final Logger LOG = LoggerFactory.getLogger("SwordHitbox");
 
     @Override
     public void onInitializeClient() {
         ModConfig cfg = ModConfig.get();
 
-        //? if >=26.2 {
+        //? if >=26.3 {
+        LevelExtractionEvents.END_EXTRACTION.register(ctx -> ctx.levelState().setData(OUTLINES,
+                ModernHitboxRenderer.extract(ctx.camera().position(),
+                        ctx.deltaTracker().getGameTimeDeltaPartialTick(false))));
+        LevelRenderEvents.COLLECT_SUBMITS.register(ctx -> ModernHitboxRenderer.submit(
+                ctx.poseStack(), ctx.submitNodeCollector(), ctx.levelState().getData(OUTLINES)));
+        //?} else if >=26.2 {
         LevelRenderEvents.AFTER_SOLID_FEATURES.register(ctx -> {
             Minecraft mc = Minecraft.getInstance();
             float tickProgress = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);

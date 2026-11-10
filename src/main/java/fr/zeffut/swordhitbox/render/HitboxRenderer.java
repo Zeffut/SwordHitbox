@@ -1,3 +1,4 @@
+//? if <26.3 {
 package fr.zeffut.swordhitbox.render;
 
 import fr.zeffut.swordhitbox.config.ModConfig;
@@ -471,3 +472,4 @@ public final class HitboxRenderer {
     }
     *///?}
 }
+//?}

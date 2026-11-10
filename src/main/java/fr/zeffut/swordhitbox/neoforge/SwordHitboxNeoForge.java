@@ -4,12 +4,23 @@ package fr.zeffut.swordhitbox.neoforge;
 import fr.zeffut.swordhitbox.config.ConfigScreenFactory;
 import fr.zeffut.swordhitbox.config.ModConfig;
 import fr.zeffut.swordhitbox.platform.Platform;
+//? if >=26.3 {
+import fr.zeffut.swordhitbox.render.ModernHitboxRenderer;
+import java.util.List;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.context.ContextKey;
+import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
+//?} else {
 import fr.zeffut.swordhitbox.render.HitboxRenderer;
+//?}
 import fr.zeffut.swordhitbox.telemetry.Telemetry;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
+//? if <26.3 {
 import net.minecraft.client.renderer.MultiBufferSource;
+//?}
 //? if >=1.21.11 {
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 //?} else {
@@ -36,6 +47,10 @@ import org.slf4j.LoggerFactory;
  */
 @Mod(value = "swordhitbox", dist = Dist.CLIENT)
 public class SwordHitboxNeoForge {
+    //? if >=26.3 {
+    private static final ContextKey<List<ModernHitboxRenderer.Outline>> OUTLINES = new ContextKey<>(
+            Identifier.fromNamespaceAndPath("swordhitbox", "outlines"));
+    //?}
     private static final Logger LOG = LoggerFactory.getLogger("SwordHitbox");
 
     public SwordHitboxNeoForge(IEventBus modBus, ModContainer container) {
@@ -45,7 +60,15 @@ public class SwordHitboxNeoForge {
         // The "after entities" stage differs by version: 1.21.11 exposes a dedicated
         // RenderLevelStageEvent.AfterEntities subtype; 26.1 dropped it, so we draw the world-space
         // line overlay at the AfterTranslucentBlocks stage (after entities & blocks are rendered).
-        //? if >=26.1 {
+        //? if >=26.3 {
+        NeoForge.EVENT_BUS.addListener((ExtractLevelRenderStateEvent event) ->
+                event.getRenderState().setRenderData(OUTLINES, ModernHitboxRenderer.extract(
+                        event.getCamera().position(),
+                        event.getDeltaTracker().getGameTimeDeltaPartialTick(false))));
+        NeoForge.EVENT_BUS.addListener((SubmitCustomGeometryEvent event) ->
+                ModernHitboxRenderer.submit(event.getPoseStack(), event.getSubmitNodeCollector(),
+                        event.getLevelRenderState().getRenderData(OUTLINES)));
+        //?} else if >=26.1 {
         /*NeoForge.EVENT_BUS.addListener(
                 (RenderLevelStageEvent.AfterTranslucentBlocks event) -> onRenderAfterEntities(event));
         *///?} else {
@@ -79,6 +102,7 @@ public class SwordHitboxNeoForge {
         LOG.info("[SwordHitbox] initialized on neoforge {} (telemetry={})", mc, Telemetry.enabled());
     }
 
+    //? if <26.3 {
     private static void onRenderAfterEntities(RenderLevelStageEvent event) {
         PoseStack pose = event.getPoseStack();
         if (pose == null) return;
@@ -93,5 +117,6 @@ public class SwordHitboxNeoForge {
         /*buffers.endBatch(RenderType.lines());
         *///?}
     }
+    //?}
 }
 //?}
