@@ -54,6 +54,9 @@ neoForge.apply {
         register(property("mod.id") as String) {
             sourceSet(sourceSets["main"])
         }
+        if (smokeTest) register("swordhitbox_smoke") {
+            sourceSet(sourceSets["main"])
+        }
     }
 }
 
