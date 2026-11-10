@@ -1,0 +1,47 @@
+name: Port validation (no publication)
+on:
+  push:
+    branches: ['port/minecraft-26.3']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        node: [1.21.9-fabric, 1.21.9-neoforge, 1.21.10-fabric, 1.21.10-neoforge, 1.21.11-fabric, 1.21.11-neoforge, 26.1.1-fabric, 26.1.1-neoforge, 26.1.2-fabric, 26.1.2-neoforge, 26.2-fabric, 26.3-fabric, 26.3-neoforge]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Build and test
+        shell: bash
+        env:
+          NODE: ${{ matrix.node }}
+        run: |
+          export JAVA_HOME="$JAVA_HOME_25_X64"
+          export PATH="$JAVA_HOME/bin:$PATH"
+          ./gradlew --no-daemon --no-parallel --max-workers=1 \
+            '-Dorg.gradle.jvmargs=-Xmx2g' \
+            "-Dorg.gradle.java.installations.paths=$JAVA_HOME_21_X64,$JAVA_HOME_25_X64" \
+            ":$NODE:build" ":$NODE:test"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: validation-${{ matrix.node }}
+          path: |
+            versions/${{ matrix.node }}/build/libs/*.jar
+            versions/${{ matrix.node }}/build/reports/
+            versions/${{ matrix.node }}/build/test-results/
+          if-no-files-found: warn

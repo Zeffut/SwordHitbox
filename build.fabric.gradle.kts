@@ -99,6 +99,12 @@ listOf("processResources", "compileJava", "sourcesJar").forEach { name ->
 // compile JDK from org.gradle.java.installations.paths regardless of the launching JVM.
 val javaTarget = if (stonecutter.eval(mcVersion, ">=26.1")) 25 else 21
 
+// Unobfuscated 26.x sources already use the runtime names; the identity mapping
+// has no intermediary tree for Loom's source remapper to process.
+if (stonecutter.eval(mcVersion, ">=26.1")) {
+    tasks.named("remapSourcesJar") { enabled = false }
+}
+
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(javaTarget))

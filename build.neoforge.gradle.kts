@@ -32,7 +32,14 @@ dependencies {
 }
 
 neoForge.apply {
-    version = property("deps.neoforge") as String
+    if (mcVersion == "26.3") {
+        enable {
+            version = property("deps.neoforge") as String
+            setDisableRecompilation(true)
+        }
+    } else {
+        version = property("deps.neoforge") as String
+    }
 
     runs {
         register("client") {

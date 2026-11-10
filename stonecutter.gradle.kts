@@ -1,6 +1,6 @@
 plugins {
     id("dev.kikugie.stonecutter")
-    id("fabric-loom") version "1.16.3" apply false
+    id("fabric-loom") version "1.17.21" apply false
     id("net.neoforged.moddev") version "2.0.141" apply false
 }
 
