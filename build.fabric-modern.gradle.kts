@@ -9,6 +9,7 @@ plugins {
 
 val loom = extensions.getByType(LoomGradleExtensionAPI::class.java)
 val mcVersion = property("deps.minecraft") as String
+val smokeTest = providers.gradleProperty("swordhitboxSmoke").isPresent
 base.archivesName = "${property("mod.id")}-fabric-$mcVersion"
 version = "${property("mod.version")}+$mcVersion"
 group = property("mod.group") as String
@@ -31,6 +32,7 @@ dependencies {
 loom.runs.named("client") {
     client()
     vmArgs("-Dswordhitbox.dev=true")
+    if (smokeTest) programArgs("--quickPlaySingleplayer", "New World")
 }
 
 val expandProps = mapOf("version" to version.toString(), "minecraft" to mcVersion)
@@ -38,10 +40,21 @@ tasks.named<ProcessResources>("processResources") {
     exclude("META-INF/neoforge.mods.toml")
     inputs.properties(expandProps)
     filesMatching("fabric.mod.json") { expand(expandProps) }
+    inputs.property("smokeTest", smokeTest)
+    if (smokeTest) doLast {
+        val metadata = destinationDir.resolve("fabric.mod.json")
+        metadata.writeText(metadata.readText().replace(
+            "\"fr.zeffut.swordhitbox.fabric.SwordHitboxFabric\"",
+            "\"fr.zeffut.swordhitbox.fabric.SwordHitboxFabric\", \"fr.zeffut.swordhitbox.FabricSmokeProbe\""))
+    }
 }
 sourceSets.named("main") {
     val generated = layout.buildDirectory.dir("generated/stonecutter/main")
     java.setSrcDirs(listOf(generated.get().dir("java")))
+    if (smokeTest) {
+        java.srcDir(rootProject.file("src/smokeTest/java"))
+        java.srcDir(rootProject.file("src/smokeTest/fabric"))
+    }
     resources.setSrcDirs(listOf(generated.get().dir("resources")))
 }
 listOf("processResources", "compileJava", "sourcesJar").forEach { name ->

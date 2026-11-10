@@ -10,6 +10,7 @@ plugins {
 // Stonecutter's non-`build.gradle.kts` buildscripts.
 val neoForge = extensions.getByType(NeoForgeExtension::class.java)
 val mcVersion = property("deps.minecraft") as String
+val smokeTest = mcVersion == "26.3" && providers.gradleProperty("swordhitboxSmoke").isPresent
 
 base.archivesName = "${property("mod.id")}-neoforge-$mcVersion"
 version = "${property("mod.version")}+$mcVersion"
@@ -45,6 +46,7 @@ neoForge.apply {
         register("client") {
             client()
             jvmArguments.add("-Dswordhitbox.dev=true")
+            if (smokeTest) programArguments.addAll(listOf("--quickPlaySingleplayer", "New World"))
         }
     }
 
@@ -60,6 +62,10 @@ neoForge.apply {
 sourceSets.named("main") {
     val generated = layout.buildDirectory.dir("generated/stonecutter/main")
     java.setSrcDirs(listOf(generated.get().dir("java")))
+    if (smokeTest) {
+        java.srcDir(rootProject.file("src/smokeTest/java"))
+        java.srcDir(rootProject.file("src/smokeTest/neoforge"))
+    }
     resources.setSrcDirs(listOf(generated.get().dir("resources")))
 }
 
@@ -73,6 +79,20 @@ tasks.named<ProcessResources>("processResources") {
     exclude("fabric.mod.json")
     inputs.properties(expandProps)
     filesMatching("META-INF/neoforge.mods.toml") { expand(expandProps) }
+    inputs.property("smokeTest", smokeTest)
+    if (mcVersion == "26.3") doLast {
+        val metadata = destinationDir.resolve("META-INF/neoforge.mods.toml")
+        metadata.writeText(metadata.readText().replace("logoFile =", "iconFile ="))
+    }
+    if (smokeTest) doLast {
+        destinationDir.resolve("META-INF/neoforge.mods.toml").appendText("""
+
+[[mods]]
+modId = "swordhitbox_smoke"
+version = "1"
+displayName = "SwordHitbox integration probe"
+""")
+    }
 }
 
 // Every task that reads the generated sources must run after they are produced.

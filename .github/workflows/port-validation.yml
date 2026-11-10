@@ -1,7 +1,7 @@
 name: Port validation (no publication)
 on:
   push:
-    branches: ['port/minecraft-26.3']
+    branches: ['main', 'port/minecraft-26.3']
   workflow_dispatch:
 permissions:
   contents: read
@@ -36,6 +36,16 @@ jobs:
             '-Dorg.gradle.jvmargs=-Xmx2g' \
             "-Dorg.gradle.java.installations.paths=$JAVA_HOME_21_X64,$JAVA_HOME_25_X64" \
             ":$NODE:build" ":$NODE:test"
+      - name: Compile opt-in client integration probes
+        if: startsWith(matrix.node, '26.3-')
+        shell: bash
+        env:
+          NODE: ${{ matrix.node }}
+        run: |
+          ./gradlew --no-daemon --no-parallel --max-workers=1 \
+            '-Dorg.gradle.jvmargs=-Xmx2g' \
+            "-Dorg.gradle.java.installations.paths=$JAVA_HOME_21_X64,$JAVA_HOME_25_X64" \
+            ":$NODE:compileJava" -PswordhitboxSmoke
       - uses: actions/upload-artifact@v4
         if: always()
         with:
