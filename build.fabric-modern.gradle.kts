@@ -35,7 +35,7 @@ loom.runs.named("client") {
     if (smokeTest) programArgs("--quickPlaySingleplayer", "New World")
 }
 
-val expandProps = mapOf("version" to version.toString(), "minecraft" to mcVersion)
+val expandProps = mapOf("version" to version.toString(), "minecraft" to mcVersion, "cloth" to property("deps.cloth_config"))
 tasks.named<ProcessResources>("processResources") {
     exclude("META-INF/neoforge.mods.toml")
     inputs.properties(expandProps)
@@ -68,6 +68,7 @@ tasks.withType<JavaCompile>().configureEach { options.release.set(25) }
 
 val modrinthToken = providers.environmentVariable("MODRINTH_TOKEN")
 if (modrinthToken.isPresent) {
+    require(!smokeTest) { "Integration probes must never be published; rebuild without swordhitboxSmoke." }
     publishMods {
         file.set(tasks.named<Jar>("jar").flatMap { it.archiveFile })
         displayName.set("${property("mod.name")} ${property("mod.version")} (Fabric $mcVersion)")
@@ -80,6 +81,8 @@ if (modrinthToken.isPresent) {
             projectId.set("xCnjRarB")
             accessToken.set(modrinthToken)
             minecraftVersions.add(mcVersion)
+            requires("cloth-config")
+            requires("fabric-api")
         }
     }
 }

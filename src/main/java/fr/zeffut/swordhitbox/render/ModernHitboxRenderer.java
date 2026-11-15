@@ -1,4 +1,4 @@
-//? if >=26.3 {
+//? if >=26.2 {
 package fr.zeffut.swordhitbox.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -20,7 +20,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 
-/** 26.3 render pipeline: extract immutable camera-relative geometry, then submit it. */
+/** Modern render pipeline: extract immutable camera-relative geometry, then submit it. */
 public final class ModernHitboxRenderer {
     private static final TagKey<Item> SWORDS =
             TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("minecraft", "swords"));

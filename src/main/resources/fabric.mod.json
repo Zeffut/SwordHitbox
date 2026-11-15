@@ -20,6 +20,7 @@
   "depends": {
     "fabricloader": ">=0.18.0",
     "fabric-api": "*",
+    "cloth-config": ">=${cloth}",
     "minecraft": "${minecraft}"
   }
 }

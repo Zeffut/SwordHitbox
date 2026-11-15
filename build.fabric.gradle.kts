@@ -81,6 +81,7 @@ loom.runs.named("client") {
 val expandProps = mapOf(
     "version" to "${property("mod.version")}+$mcVersion",
     "minecraft" to mcVersion,
+    "cloth" to property("deps.cloth_config"),
 )
 
 tasks.named<ProcessResources>("processResources") {
@@ -142,6 +143,8 @@ if (modrinthToken.isPresent) {
             projectId.set("xCnjRarB")
             accessToken.set(modrinthToken)
             minecraftVersions.add(mcVersion)
+            requires("cloth-config")
+            requires("fabric-api")
         }
     }
 }
