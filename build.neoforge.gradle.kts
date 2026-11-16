@@ -10,7 +10,7 @@ plugins {
 // Stonecutter's non-`build.gradle.kts` buildscripts.
 val neoForge = extensions.getByType(NeoForgeExtension::class.java)
 val mcVersion = property("deps.minecraft") as String
-val smokeTest = mcVersion == "26.3" && providers.gradleProperty("swordhitboxSmoke").isPresent
+val smokeTest = stonecutter.eval(mcVersion, ">=26.2") && providers.gradleProperty("swordhitboxSmoke").isPresent
 
 base.archivesName = "${property("mod.id")}-neoforge-$mcVersion"
 version = "${property("mod.version")}+$mcVersion"
@@ -75,6 +75,7 @@ sourceSets.named("main") {
 val expandProps = mapOf(
     "version" to "${property("mod.version")}+$mcVersion",
     "minecraft" to mcVersion,
+    "cloth" to property("deps.cloth_config"),
 )
 
 tasks.named<ProcessResources>("processResources") {
@@ -83,7 +84,7 @@ tasks.named<ProcessResources>("processResources") {
     inputs.properties(expandProps)
     filesMatching("META-INF/neoforge.mods.toml") { expand(expandProps) }
     inputs.property("smokeTest", smokeTest)
-    if (mcVersion == "26.3") doLast {
+    if (stonecutter.eval(mcVersion, ">=26.2")) doLast {
         val metadata = destinationDir.resolve("META-INF/neoforge.mods.toml")
         metadata.writeText(metadata.readText().replace("logoFile =", "iconFile ="))
     }
@@ -128,6 +129,7 @@ tasks.withType<JavaCompile>().configureEach {
 // fails for lack of a token. Publish with: MODRINTH_TOKEN=xxx ./gradlew :<node>:publishMods
 val modrinthToken = providers.environmentVariable("MODRINTH_TOKEN")
 if (modrinthToken.isPresent) {
+    require(!smokeTest) { "Integration probes must never be published; rebuild without swordhitboxSmoke." }
     publishMods {
         file.set(tasks.named<Jar>("jar").flatMap { it.archiveFile })
         displayName.set("${property("mod.name")} ${property("mod.version")} (NeoForge $mcVersion)")
@@ -141,6 +143,7 @@ if (modrinthToken.isPresent) {
             projectId.set("xCnjRarB")
             accessToken.set(modrinthToken)
             minecraftVersions.add(mcVersion)
+            requires("cloth-config")
         }
     }
 }

@@ -1,4 +1,4 @@
-//? if <26.3 {
+//? if <26.2 || fabric && <26.3 {
 package fr.zeffut.swordhitbox.render;
 
 import fr.zeffut.swordhitbox.config.ModConfig;

@@ -4,7 +4,7 @@ package fr.zeffut.swordhitbox.neoforge;
 import fr.zeffut.swordhitbox.config.ConfigScreenFactory;
 import fr.zeffut.swordhitbox.config.ModConfig;
 import fr.zeffut.swordhitbox.platform.Platform;
-//? if >=26.3 {
+//? if >=26.2 {
 import fr.zeffut.swordhitbox.render.ModernHitboxRenderer;
 import java.util.List;
 import net.minecraft.resources.Identifier;
@@ -18,7 +18,7 @@ import fr.zeffut.swordhitbox.telemetry.Telemetry;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
-//? if <26.3 {
+//? if <26.2 {
 import net.minecraft.client.renderer.MultiBufferSource;
 //?}
 //? if >=1.21.11 {
@@ -42,12 +42,12 @@ import org.slf4j.LoggerFactory;
  * NeoForge client entrypoint. Initializes config + telemetry, emits the standard
  * {@code client_started} / {@code mod_loaded} events plus a one-shot {@code swh_display_enabled}
  * event, subscribes the after-entities render-level hook that draws the custom interpolated hitbox
- * overlay ({@link HitboxRenderer}), and registers the in-game "Config" button that opens the shared
+ * overlay, and registers the in-game "Config" button that opens the shared
  * Cloth Config screen ({@link ConfigScreenFactory}).
  */
 @Mod(value = "swordhitbox", dist = Dist.CLIENT)
 public class SwordHitboxNeoForge {
-    //? if >=26.3 {
+    //? if >=26.2 {
     private static final ContextKey<List<ModernHitboxRenderer.Outline>> OUTLINES = new ContextKey<>(
             Identifier.fromNamespaceAndPath("swordhitbox", "outlines"));
     //?}
@@ -60,7 +60,7 @@ public class SwordHitboxNeoForge {
         // The "after entities" stage differs by version: 1.21.11 exposes a dedicated
         // RenderLevelStageEvent.AfterEntities subtype; 26.1 dropped it, so we draw the world-space
         // line overlay at the AfterTranslucentBlocks stage (after entities & blocks are rendered).
-        //? if >=26.3 {
+        //? if >=26.2 {
         NeoForge.EVENT_BUS.addListener((ExtractLevelRenderStateEvent event) ->
                 event.getRenderState().setRenderData(OUTLINES, ModernHitboxRenderer.extract(
                         event.getCamera().position(),
@@ -102,7 +102,7 @@ public class SwordHitboxNeoForge {
         LOG.info("[SwordHitbox] initialized on neoforge {} (telemetry={})", mc, Telemetry.enabled());
     }
 
-    //? if <26.3 {
+    //? if <26.2 {
     private static void onRenderAfterEntities(RenderLevelStageEvent event) {
         PoseStack pose = event.getPoseStack();
         if (pose == null) return;

@@ -10,16 +10,23 @@ description = "Affiche les hitboxes vanilla des entités quand tu tiens une ép�
 authors = "zeffut"
 logoFile = "assets/swordhitbox/icon.png"
 
-[[mods."swordhitbox".dependencies]]
+[[dependencies.swordhitbox]]
 modId = "neoforge"
 type = "required"
 versionRange = "[0,)"
 ordering = "NONE"
 side = "CLIENT"
 
-[[mods."swordhitbox".dependencies]]
+[[dependencies.swordhitbox]]
 modId = "minecraft"
 type = "required"
-versionRange = "[0,)"
+versionRange = "[${minecraft}]"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.swordhitbox]]
+modId = "cloth_config"
+type = "required"
+versionRange = "[${cloth},)"
 ordering = "NONE"
 side = "CLIENT"

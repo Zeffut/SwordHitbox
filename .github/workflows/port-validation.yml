@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        node: [1.21.9-fabric, 1.21.9-neoforge, 1.21.10-fabric, 1.21.10-neoforge, 1.21.11-fabric, 1.21.11-neoforge, 26.1.1-fabric, 26.1.1-neoforge, 26.1.2-fabric, 26.1.2-neoforge, 26.2-fabric, 26.3-fabric, 26.3-neoforge]
+        node: [1.21.9-fabric, 1.21.9-neoforge, 1.21.10-fabric, 1.21.10-neoforge, 1.21.11-fabric, 1.21.11-neoforge, 26.1.1-fabric, 26.1.1-neoforge, 26.1.2-fabric, 26.1.2-neoforge, 26.2-fabric, 26.2-neoforge, 26.3-fabric, 26.3-neoforge]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,7 +37,7 @@ jobs:
             "-Dorg.gradle.java.installations.paths=$JAVA_HOME_21_X64,$JAVA_HOME_25_X64" \
             ":$NODE:build" ":$NODE:test"
       - name: Compile opt-in client integration probes
-        if: startsWith(matrix.node, '26.3-')
+        if: startsWith(matrix.node, '26.3-') || matrix.node == '26.2-neoforge'
         shell: bash
         env:
           NODE: ${{ matrix.node }}
